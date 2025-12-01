@@ -4,6 +4,6 @@
   "dependencies": {
     "left-pad": "1.3.0",
     "lodash": "4.17.19",
-    "minimist": "0.0.8"
+    "minimist": "0.2.4"
   }
 }
