@@ -1,48 +1,28 @@
-name: Auto approve renovate PRs - Talk Android
+name: Dependency bot auto-merge
 
 on:
-  pull_request_target: # zizmor: ignore[dangerous-triggers]
+  pull_request:
+    types: [opened, reopened, synchronize]
     branches:
       - main
       - master
       - stable*
 
 permissions:
-  contents: read
-
-concurrency:
-  group: renovate-approve-merge-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  pull-requests: write
+  contents: write
 
 jobs:
-  auto-approve-merge:
-    if: github.event.pull_request.user.login == 'renovate[bot]'
+  dependabot:
     runs-on: ubuntu-latest
-    permissions:
-      # for hmarr/auto-approve-action to approve PRs
-      pull-requests: write
+    if: ${{ github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' }}
 
     steps:
-      - uses: mdecoleman/pr-branch-name@55795d86b4566d300d237883103f052125cc7508 # v3.0.0
-        id: branchname
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Debug actor
+        run: echo "Actor matched condition Testing"
 
-      # GitHub actions bot approve
-      - uses: hmarr/auto-approve-action@f0939ea97e9205ef24d872e76833fa908a770363 # v4.0.0
-        if: github.actor == 'renovate[bot]'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-        with:
-          ref: ${{ github.head_ref }}
-
-      # Enable GitHub auto merge
-      - name: Enable Pull Request Automerge
-        if: github.actor == 'renovate[bot]'
-        run: gh pr merge --merge --auto
+      - name: Enable auto-merge for Dependabot and Renovate PRs
+        run: gh pr merge --auto --merge "$PR_URL"
         env:
-          GH_TOKEN: ${{ secrets.AUTOMERGE }}
-
-          
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
