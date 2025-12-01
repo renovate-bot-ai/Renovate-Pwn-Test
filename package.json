@@ -1,0 +1,7 @@
+{
+  "name": "my-sample-project",
+  "version": "0.1.0",
+  "dependencies": {
+    "left-pad": "1.0.0"
+  }
+}
