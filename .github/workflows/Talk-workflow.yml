@@ -1,27 +1,17 @@
-name: Dependency bot auto-approve
-
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+name: Dependency bot auto-merge
+on: pull_request
 
 permissions:
   pull-requests: write
-  contents: read
+  contents: write
 
 jobs:
-  dependency-bot:
+  dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]' }}
     steps:
-      - name: Approve Dependabot / Renovate PR
-        run: gh pr review "$PR_URL" --approve --body "Auto-approval for dependency bot PR."
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Optional: add a label so it's obvious it's safe to merge
-      - name: Add ready-to-merge label
-        run: gh pr edit "$PR_URL" --add-label "deps-ready"
+      - name: Enable auto-merge for Dependabot and renovate PRs
+        run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
